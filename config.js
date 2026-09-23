@@ -31,7 +31,7 @@
    true  = Supabase Mode (data syncs to your cloud project)
    false = Demo Mode (data stays in this browser's localStorage)
    Your credentials below stay saved either way — just flip this. */
-const USE_SUPABASE = false;
+const USE_SUPABASE = true;
 
 /* ★ PASTE YOUR PROJECT URL HERE ★
    Accepts https://<ref>.supabase.co  or  https://<ref>.supabase.co/rest/v1 */
