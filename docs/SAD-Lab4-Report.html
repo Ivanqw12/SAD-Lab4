@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SAD Lab 4 Section B — Facility Reservation &amp; Approval System Report</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  html { font-family: "Segoe UI", Calibri, Arial, sans-serif; font-size: 10.5pt; line-height: 1.45; color: #1a1a1a; }
+  body { max-width: 190mm; margin: 0 auto; }
+  h1 { font-size: 17pt; margin: 0 0 2px 0; }
+  h2 { font-size: 13pt; margin: 22px 0 6px 0; border-bottom: 2px solid #2c5aa0; color: #2c5aa0; page-break-after: avoid; }
+  h3 { font-size: 11.5pt; margin: 12px 0 4px 0; page-break-after: avoid; }
+  p { margin: 4px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 9pt; page-break-inside: auto; }
+  th, td { border: 1px solid #999; padding: 4px 6px; text-align: left; vertical-align: top; }
+  th { background: #eef3fa; }
+  tr { page-break-inside: avoid; }
+  .meta { color: #555; font-size: 9.5pt; }
+  code { background: #f3f3f3; padding: 0 3px; border-radius: 3px; font-size: 9pt; }
+  pre { background: #f6f6f6; border: 1px solid #ddd; padding: 8px; font-size: 8.5pt; page-break-inside: avoid; }
+  .subhead { color:#2c5aa0; font-weight:600; }
+  .diagram { width: 100%; margin: 10px 0; }
+  .diagram svg { display:block; width:100%; height:auto; }
+  .caption { font-size: 9pt; color:#555; text-align:center; }
+</style>
+</head>
+<body>
+
+<h1>SAD Lab 4 Section B — Facility Reservation &amp; Approval System</h1>
+<p class="meta">Required Submission Report (Items 22–32) &nbsp;|&nbsp; Course: SAD Lab 4 &nbsp;|&nbsp;
+Project: Role-Based Campus Facility Reservation and Approval System<br>
+Roles: Administrator, Facility Staff, Requester (Student / Faculty / Student Org), Security, Management</p>
+
+<h2>22. Stakeholder Statement Analysis</h2>
+<p>Each stakeholder&rsquo;s concern is translated into an implied requirement that the system must satisfy.</p>
+<table>
+<tr><th>#</th><th>Stakeholder</th><th>Statement / Concern</th><th>Implied Requirement</th></tr>
+<tr><td>S1</td><td>Student / Faculty / Student Org (Requester)</td><td>&ldquo;I want to check facility availability first, then book it for my activity and know the outcome of my request.&rdquo;</td><td>Search availability (FR-01); submit reservation (FR-02); be notified of outcome (FR-09).</td></tr>
+<tr><td>S2</td><td>Facility Administration</td><td>&ldquo;I need to review every request, approve or reject it, and keep facility information accurate.&rdquo;</td><td>Approval workflow (FR-05); per-facility approval policy (FR-04); facility management (FR-10).</td></tr>
+<tr><td>S3</td><td>Facility Staff</td><td>&ldquo;I need to confirm when a facility is actually used, record completion, and file maintenance concerns.&rdquo;</td><td>Usage confirmation / no-show / completion (FR-06); service requests.</td></tr>
+<tr><td>S4</td><td>Campus Security</td><td>&ldquo;I must know what is authorized after hours and approve large events for safety.&rdquo;</td><td>After-hours authorization list (FR-07); dual approval for large events (CR-01).</td></tr>
+<tr><td>S5</td><td>Management</td><td>&ldquo;I need utilization data to plan capacity and operations.&rdquo;</td><td>Utilization reports with CSV export (FR-08); audit-log visibility.</td></tr>
+<tr><td>S6</td><td>IT / Auditor</td><td>&ldquo;Every decision and data change must be traceable.&rdquo;</td><td>Full audit trail (BR-B4-10); read audit logs.</td></tr>
+</table>
+
+<h2>23. Requirements Problems and Clarification Questions</h2>
+<table>
+<tr><th>#</th><th>Problem / Ambiguity</th><th>Clarification Question</th></tr>
+<tr><td>P1</td><td>&ldquo;After-hours&rdquo; is configurable but not confirmed.</td><td>Is after-hours = weekends + 18:00–07:00, or only nights / holidays? Who authorizes exceptions?</td></tr>
+<tr><td>P2</td><td>No maximum booking duration or advance lead-time exists.</td><td>What is the max hours per booking and how far in advance can a reservation be made?</td></tr>
+<tr><td>P3</td><td>Notifications are in-app only.</td><td>Is an email / SMS gateway required, or is in-app sufficient for the lab?</td></tr>
+<tr><td>P4</td><td>No-show handling is defined but has no penalty.</td><td>Should repeated no-shows restrict a requester&rsquo;s future bookings?</td></tr>
+<tr><td>P5</td><td>Auto-confirm facilities skip admin review.</td><td>Should auto-confirmed requests still appear in an audit log and be cancelable by admin?</td></tr>
+<tr><td>P6</td><td>Large-event threshold is set at 100 pax.</td><td>Is 100 the agreed threshold, or should it be per-facility?</td></tr>
+<tr><td>P7</td><td>Recurring events are unsupported.</td><td>Do requesters need recurring / series bookings in this release?</td></tr>
+</table>
+
+<h2>24. Stakeholder/Actor Analysis</h2>
+<table>
+<tr><th>Actor</th><th>Type</th><th>Description</th><th>Goals</th><th>Key Interactions</th></tr>
+<tr><td>Requester</td><td>Primary</td><td>Student, faculty member, or student organization representative</td><td>Search availability, submit requests, track / cancel own bookings</td><td>UC-01, UC-02, UC-04, UC-09</td></tr>
+<tr><td>Administrator</td><td>Primary</td><td>Facility Administration / IT Personnel</td><td>Manage facilities &amp; users, approve / reject, run reports, audit</td><td>UC-03, UC-04, UC-05, UC-07, UC-08, UC-10</td></tr>
+<tr><td>Facility Staff</td><td>Supporting</td><td>Operations staff</td><td>Confirm usage, record completion / no-show, service requests</td><td>UC-04, UC-06</td></tr>
+<tr><td>Security</td><td>Supporting</td><td>Campus security officer</td><td>Approve large events, view after-hours authorization</td><td>UC-06, UC-10</td></tr>
+<tr><td>Management</td><td>Secondary</td><td>Facilities Manager</td><td>View utilization reports and audit logs</td><td>UC-05</td></tr>
+</table>
+
+<h2>25. Ten Functional Requirements (FR)</h2>
+<table>
+<tr><th>ID</th><th>Requirement</th></tr>
+<tr><td>FR-01</td><td>The system shall allow any logged-in user to search facility availability by date / time, minimum capacity, and facility type, returning only Active facilities (BR-B4-01).</td></tr>
+<tr><td>FR-02</td><td>The system shall let a Requester submit a reservation request with facility, purpose, participant count, start, and end; it must reject invalid time ranges (BR-B4-02), capacity overflow, and overlapping schedules (BR-B4-03).</td></tr>
+<tr><td>FR-03</td><td>The system shall enforce the reservation status workflow: Submitted &rarr; Pending &rarr; Approved/Rejected, then Scheduled &rarr; In Use &rarr; Completed, plus Cancelled and No-show (BR-B4-05..07).</td></tr>
+<tr><td>FR-04</td><td>The system shall apply a per-facility approval policy: <code>Requires approval</code> or <code>Auto-confirm</code> (auto-confirm sets status directly to Approved).</td></tr>
+<tr><td>FR-05</td><td>The system shall allow only the Administrator to approve or reject non-large requests and shall record the decision (BR-B4-04, BR-B4-10).</td></tr>
+<tr><td>FR-06</td><td>The system shall allow Facility Staff / Admin to mark an approved booking In Use, record Completion or No-show, and let Requesters cancel eligible own requests (BR-B4-09).</td></tr>
+<tr><td>FR-07</td><td>The system shall produce an after-hours authorization list (approved bookings in after-hours windows or large events) visible to Security / Admin / Staff / Management.</td></tr>
+<tr><td>FR-08</td><td>The system shall generate per-facility utilization reports (totals, approved hours, cancelled, no-shows, rejected) and export CSV.</td></tr>
+<tr><td>FR-09</td><td>The system shall create in-app notifications on submit, approval, rejection, and status changes, with read / unread tracking.</td></tr>
+<tr><td>FR-10</td><td>The system shall let the Administrator manage facilities (create / update / delete) and users (roles, active status) with role-based access.</td></tr>
+</table>
+
+<h2>26. Five Non-Functional Requirements (NFR)</h2>
+<table>
+<tr><th>ID</th><th>Category</th><th>Requirement</th></tr>
+<tr><td>NFR-01</td><td>Usability</td><td>The system shall present a role-based dashboard / navigation so each role only sees permitted functions; blocked actions show a clear reason.</td></tr>
+<tr><td>NFR-02</td><td>Availability</td><td>The system shall run fully in Demo Mode (localStorage) with zero setup and gracefully fall back to offline if the cloud backend is unavailable.</td></tr>
+<tr><td>NFR-03</td><td>Performance</td><td>Availability search, submission, and status updates shall complete synchronously on local data without user-visible delay.</td></tr>
+<tr><td>NFR-04</td><td>Security</td><td>Access control shall be enforced both in the UI and in the logic layer, and duplicate protection / RLS shall guard the cloud database.</td></tr>
+<tr><td>NFR-05</td><td>Auditability</td><td>Every critical action (login, submit, approval, rejection, cancellation, status change, facility / user changes) shall be logged with actor, role, and timestamp.</td></tr>
+</table>
+
+<h2>27. MoSCoW Prioritization</h2>
+<table>
+<tr><th>Priority</th><th>Requirement</th></tr>
+<tr><td><b>Must</b></td><td>FR-01 availability search, FR-02 submit, FR-03 workflow, FR-04 approval policy, FR-05 approve / reject, FR-06 cancel / no-show / completion, FR-10 manage facilities &amp; users, RBAC, audit trail (BR-B4-10)</td></tr>
+<tr><td><b>Should</b></td><td>FR-07 after-hours authorization list, FR-08 utilization reports, FR-09 notifications, per-facility condition notes</td></tr>
+<tr><td><b>Could</b></td><td>CSV exports for reports and audit logs, dual-approval for large events (CR-01), registration for new requesters</td></tr>
+<tr><td><b>Won&rsquo;t (this release)</b></td><td>Email / SMS gateway, recurring reservations, online payment, multi-campus support</td></tr>
+</table>
+
+<h2>28. Candidate Use Case Table</h2>
+<table>
+<tr><th>ID</th><th>Use Case</th><th>Primary Actor</th><th>Goal / Description</th><th>Derived From</th></tr>
+<tr><td>UC-01</td><td>View Availability</td><td>Requester</td><td>Search active facilities by time, type, and capacity; see conflicts</td><td>FR-01</td></tr>
+<tr><td>UC-02</td><td>Submit Reservation Request</td><td>Requester</td><td>Create a reservation with validation and store as Pending / Auto-confirmed</td><td>FR-02, FR-04</td></tr>
+<tr><td>UC-03</td><td>Review Request</td><td>Administrator</td><td>Approve or reject a pending request; reassigns workflow status</td><td>FR-05</td></tr>
+<tr><td>UC-04</td><td>Cancel / No-show / Complete</td><td>Requester, Staff, Admin</td><td>Cancel own requests; confirm usage; record no-show / completion</td><td>FR-03, FR-06</td></tr>
+<tr><td>UC-05</td><td>Generate Utilization Report</td><td>Admin, Management</td><td>View per-facility utilization stats and export CSV</td><td>FR-08</td></tr>
+<tr><td>UC-06</td><td>View After-Hours Auth List</td><td>Security, Staff, Admin, Management</td><td>List authorized after-hours or large-event bookings</td><td>FR-07</td></tr>
+<tr><td>UC-07</td><td>Manage Facilities</td><td>Administrator</td><td>Create / update / delete facilities and approval policies</td><td>FR-10 / FR-04</td></tr>
+<tr><td>UC-08</td><td>Manage Users</td><td>Administrator</td><td>Add users, assign roles, activate / deactivate</td><td>FR-10</td></tr>
+<tr><td>UC-09</td><td>Send Notification</td><td>System</td><td>Notify requester and role-based approvers on events</td><td>FR-09</td></tr>
+<tr><td>UC-10</td><td>Dual Approval (&gt;100 pax)</td><td>Admin + Security</td><td>Two-step approval path for large events</td><td>CR-01</td></tr>
+</table>
+
+<h2>29. UML Use Case Diagram</h2>
+<div class="diagram">
+<!-- USECASE_DIAGRAM_SVG -->
+</div>
+<p class="caption">Figure 1 — UML Use Case Diagram of the Facility Reservation &amp; Approval System. Editable sources: <code>usecase-diagram.puml</code> (PlantUML), <code>usecase-diagram.mmd</code> (Mermaid).</p>
+
+<h2>30. Two Detailed Use Case Specifications</h2>
+
+<h3>UC-02 — Submit Reservation Request</h3>
+<table>
+<tr><th>Field</th><th>Description</th></tr>
+<tr><td>ID</td><td>UC-02</td></tr>
+<tr><td>Actor</td><td>Requester (Student / Faculty / Student Org); Administrator may submit on behalf</td></tr>
+<tr><td>Precondition</td><td>Requester is logged in; at least one Active facility exists</td></tr>
+<tr><td>Trigger</td><td>Requester opens the Reservations page and enters facility, purpose, participants, start, end</td></tr>
+<tr><td>Main flow</td><td>1. System lists Active facilities and their capacity. 2. Actor selects facility, enters purpose, participant count, start, end. 3. System validates start &lt; end (BR-B4-02), capacity &ge; participants, overlaps vs Approved / Scheduled / In Use (BR-B4-03), and facility Active (BR-B4-01). 4. System determines route: Auto-confirm &rarr; status Approved; Requires approval &rarr; Pending; &gt;100 pax &rarr; dual approval (CR-01). 5. System stores the reservation, logs (BR-B4-10), notifies the requester (UC-09).</td></tr>
+<tr><td>Alternatives</td><td>5a. Auto-confirm: immediate Approved + notification. 5b. Large event: status Pending / Partially Approved and Security / Admin notified (UC-10).</td></tr>
+<tr><td>Exceptions</td><td>Validation failures (overlap, capacity, inactive facility, inverted time) return a specific blocked message and no record is created.</td></tr>
+<tr><td>Postcondition</td><td>Reservation saved in the system; requester notified; audit entry written.</td></tr>
+</table>
+
+<h3>UC-03 — Review Request (Approve / Reject)</h3>
+<table>
+<tr><th>Field</th><th>Description</th></tr>
+<tr><td>ID</td><td>UC-03</td></tr>
+<tr><td>Actor</td><td>Administrator (Security for large-event leg)</td></tr>
+<tr><td>Precondition</td><td>Request exists with status Pending (or Partially Approved)</td></tr>
+<tr><td>Trigger</td><td>Administrator opens the Approval Queue</td></tr>
+<tr><td>Main flow</td><td>1. System lists pending requests (large events for Security). 2. Actor selects Approve or Reject. 3. System re-checks overlap for approval (BR-B4-03). 4. Non-large: status &rarr; Approved / Scheduled or Rejected; decision stored. 5. Log audit; notify requester.</td></tr>
+<tr><td>Alternatives</td><td>3a. Overlap &rarr; approval blocked with message. 4a. Large event (UC-10): Admin and Security each decide; both Approved &rarr; Approved; either Rejected &rarr; Rejected; mixed &rarr; Partially Approved.</td></tr>
+<tr><td>Exceptions</td><td>Terminal reservations (Completed / Rejected / Cancelled / No-show) cannot be decided; rejected cannot go to Scheduled (BR-B4-05).</td></tr>
+<tr><td>Postcondition</td><td>Status updated, requester notified, audit entry written.</td></tr>
+</table>
+
+<h2>31. Requirements Traceability Matrix</h2>
+<table>
+<tr><th>Requirement</th><th>Source</th><th>Use Case(s)</th><th>Business Rule</th><th>Test Case</th><th>Result</th></tr>
+<tr><td>FR-01</td><td>S1</td><td>UC-01</td><td>BR-B4-01</td><td>TC-B4-08 (inactive / maintenance blocked)</td><td>Passed</td></tr>
+<tr><td>FR-02</td><td>S1</td><td>UC-02</td><td>BR-B4-02, BR-B4-03</td><td>TC-B4-01, TC-B4-02</td><td>Passed</td></tr>
+<tr><td>FR-03</td><td>S3</td><td>UC-03, UC-04</td><td>BR-B4-05, BR-B4-06, BR-B4-07</td><td>TC-B4-05, TC-B4-06</td><td>Passed</td></tr>
+<tr><td>FR-04</td><td>S2</td><td>UC-02, UC-03</td><td>FR-04 policy</td><td>TC-B4-01 (auto-confirm)</td><td>Passed</td></tr>
+<tr><td>FR-05</td><td>S2</td><td>UC-03</td><td>BR-B4-04</td><td>TC-B4-03, TC-B4-04</td><td>Passed</td></tr>
+<tr><td>FR-06</td><td>S3</td><td>UC-04</td><td>BR-B4-07, BR-B4-09</td><td>TC-B4-05, TC-B4-06, TC-B4-07</td><td>Passed</td></tr>
+<tr><td>FR-07</td><td>S4</td><td>UC-06</td><td>after-hours rule</td><td>Manual (Auth List tab)</td><td>Passed</td></tr>
+<tr><td>FR-08</td><td>S5</td><td>UC-05</td><td>—</td><td>Manual (Reports + CSV export)</td><td>Passed</td></tr>
+<tr><td>FR-09</td><td>S1–S4</td><td>UC-02, UC-03, UC-09, UC-10</td><td>BR-B4-10</td><td>Manual (Notifications tab)</td><td>Passed</td></tr>
+<tr><td>FR-10</td><td>S2</td><td>UC-07, UC-08</td><td>RBAC matrix</td><td>TC-B4-09 (audit), RBAC checks</td><td>Passed</td></tr>
+<tr><td>CR-01</td><td>S4</td><td>UC-10</td><td>CR-01 (&gt;100)</td><td>TC-CR-01</td><td>Passed</td></tr>
+<tr><td>BR-B4-10</td><td>S6</td><td>all</td><td>audit trail</td><td>TC-B4-09</td><td>Passed</td></tr>
+</table>
+
+<h2>32. Change-Request Impact Analysis</h2>
+<p class="subhead">CR-01 — Dual Approval for Large Events (&gt;100 participants)</p>
+<table>
+<tr><th>Aspect</th><th>Analysis</th></tr>
+<tr><td>Rationale</td><td>Security raised a concern that events &gt;100 pax need a second, security review before approval.</td></tr>
+<tr><td>Affected requirements</td><td>FR-03 (workflow), FR-05 (approval), FR-06 (state handling); new UC-10; new status <code>Partially Approved</code>.</td></tr>
+<tr><td>Affected components</td><td>Approval logic (<code>decideApproval</code>), transition map, approval-queue UI filter for Security, reservation form (participant-count gate); schema gains <code>admin_decision</code>, <code>security_decision</code>, <code>is_large_event</code>.</td></tr>
+<tr><td>Affected business rules</td><td>Adds CR-01 alongside BR-B4-04 &middot; 05; <code>Partially Approved</code> becomes a legal state.</td></tr>
+<tr><td>Test impact</td><td>New test TC-CR-01 (150 pax &rarr; Partially Approved &rarr; Approved after both decision-makers act).</td></tr>
+<tr><td>Risk / effort</td><td>Medium; low technical risk since it reuses the existing review flow with an added second sign-off; requires Security login and queue visibility.</td></tr>
+<tr><td>Decision</td><td><b>Approved</b> — merged in current release; threshold configurable via <code>LARGE_EVENT_THRESHOLD = 100</code>.</td></tr>
+</table>
+
+</body>
+</html>
