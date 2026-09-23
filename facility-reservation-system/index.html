@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FRS — Facility Reservation System</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-brand">
+          <h1>FRS</h1>
+          <p>Facility Reservation</p>
+        </div>
+        <nav class="sidebar-nav" id="mainNav">
+          <button data-view="dashboard" class="sidebar-link active">
+            <span class="nav-icon">&#9632;</span> Dashboard
+          </button>
+          <button data-view="facilities" class="sidebar-link">
+            <span class="nav-icon">&#9632;</span> Facilities
+          </button>
+          <button data-view="availability" class="sidebar-link">
+            <span class="nav-icon">&#9632;</span> Availability (FR-01)
+          </button>
+          <button data-view="reservations" class="sidebar-link">
+            <span class="nav-icon">&#9632;</span> All Reservations
+          </button>
+          <button data-view="approval" class="sidebar-link" id="navApproval">
+            <span class="nav-icon">&#9632;</span> Approval Queue
+          </button>
+          <button data-view="authlist" class="sidebar-link">
+            <span class="nav-icon">&#9632;</span> Auth List (Security)
+          </button>
+          <button data-view="reports" class="sidebar-link">
+            <span class="nav-icon">&#9632;</span> Reports (FR-08)
+          </button>
+          <button data-view="notifications" class="sidebar-link">
+            <span class="nav-icon">&#9632;</span> Notifications<span id="navNotifBadge"></span>
+          </button>
+          <button data-view="service" class="sidebar-link" id="navService">
+            <span class="nav-icon">&#9632;</span> Service Requests
+          </button>
+          <button data-view="users" class="sidebar-link" id="navUsers">
+            <span class="nav-icon">&#9632;</span> User Management
+          </button>
+          <button data-view="audit" class="sidebar-link" id="navAudit">
+            <span class="nav-icon">&#9632;</span> Audit Logs
+          </button>
+          <button data-view="docs" class="sidebar-link">
+            <span class="nav-icon">&#9632;</span> Docs &amp; ERD
+          </button>
+          <button data-view="tests" class="sidebar-link">
+            <span class="nav-icon">&#9632;</span> Test Checklist
+          </button>
+        </nav>
+      </div>
+      <div class="sidebar-bottom">
+        <div class="sidebar-user" id="sidebarUser">
+          <span class="user-name" id="sidebarUserName">guest</span>
+          <span class="user-role-badge" id="sidebarUserRole"></span>
+        </div>
+        <button id="logoutBtn" class="btn-logout hidden">Logout</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-wrapper">
+      <main class="main-content">
+        <div id="toast" class="toast hidden" role="status"></div>
+        <div id="deniedBox" class="error hidden"></div>
+
+        <!-- ============ LOGIN VIEW ============ -->
+        <section id="view-login" class="view">
+          <div class="login-grid">
+            <div class="card">
+              <h2>Login</h2>
+              <p class="muted">Use a demo account to sign in.</p>
+              <p id="modeBadge" class="muted small"></p>
+              <form id="loginForm" novalidate>
+                <div class="field">
+                  <label for="loginUser">Username</label>
+                  <input type="text" id="loginUser" placeholder="e.g. admin" autocomplete="username" required />
+                </div>
+                <div class="field">
+                  <label for="loginPass">Password</label>
+                  <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" required />
+                </div>
+                <p id="loginMsg" class="form-message" role="status"></p>
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+              </form>
+              <div class="demo-accounts">
+                <h4>Demo accounts (password = username + 123, except admin)</h4>
+                <table class="mini-table">
+                  <thead><tr><th>Username</th><th>Password</th><th>Role</th><th></th></tr></thead>
+                  <tbody>
+                    <tr><td><code>admin</code></td><td><code>admin123</code></td><td>Administrator</td><td><button class="btn btn-sm" data-fill="admin|admin123">Fill</button></td></tr>
+                    <tr><td><code>staff</code></td><td><code>staff123</code></td><td>Facility Staff</td><td><button class="btn btn-sm" data-fill="staff|staff123">Fill</button></td></tr>
+                    <tr><td><code>requester</code></td><td><code>requester123</code></td><td>Requester</td><td><button class="btn btn-sm" data-fill="requester|requester123">Fill</button></td></tr>
+                    <tr><td><code>requester2</code></td><td><code>requester123</code></td><td>Requester</td><td><button class="btn btn-sm" data-fill="requester2|requester123">Fill</button></td></tr>
+                    <tr><td><code>security</code></td><td><code>security123</code></td><td>Security</td><td><button class="btn btn-sm" data-fill="security|security123">Fill</button></td></tr>
+                    <tr><td><code>manager</code></td><td><code>manager123</code></td><td>Management</td><td><button class="btn btn-sm" data-fill="manager|manager123">Fill</button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card">
+              <h2>Register as Requester</h2>
+              <p class="muted">New accounts are created with the Requester role.</p>
+              <form id="registerForm" novalidate>
+                <div class="field"><label for="regUser">Username</label><input id="regUser" required placeholder="e.g. juan01" /></div>
+                <div class="field"><label for="regName">Full name</label><input id="regName" required placeholder="e.g. Juan Dela Cruz" /></div>
+                <div class="field"><label for="regPass">Password</label><input id="regPass" type="password" required placeholder="min. 4 chars" /></div>
+                <p id="regMsg" class="form-message"></p>
+                <button class="btn btn-secondary btn-block" type="submit">Create Requester Account</button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ DASHBOARD ============ -->
+        <section id="view-dashboard" class="view hidden">
+          <h2 class="view-title">Dashboard</h2>
+          <div class="stat-grid" id="statGrid"></div>
+          <div class="card">
+            <h3>Recent Activity</h3>
+            <div class="table-wrap">
+              <table class="records-table">
+                <thead>
+                  <tr>
+                    <th>Action</th>
+                    <th>Table</th>
+                    <th>User</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="dashRecentActivity"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ FACILITIES ============ -->
+        <section id="view-facilities" class="view hidden">
+          <h2 class="view-title">Facilities</h2>
+          <div class="card" id="facilityFormCard">
+            <h3 id="facilityFormTitle">Add Facility <span class="muted small">(Administrator only)</span></h3>
+            <form id="facilityForm" novalidate>
+              <input type="hidden" id="facEditId" />
+              <div class="form-grid">
+                <div class="field"><label for="facName">Facility name</label><input id="facName" required placeholder="e.g. Gymnasium" /></div>
+                <div class="field"><label for="facType">Type</label>
+                  <select id="facType"><option>Sports</option><option>Meeting</option><option>Laboratory</option><option>Event</option><option>Study</option><option>General</option></select></div>
+                <div class="field"><label for="facCap">Capacity</label><input id="facCap" type="number" min="1" value="30" required /></div>
+                <div class="field"><label for="facLoc">Location</label><input id="facLoc" placeholder="e.g. Building A" /></div>
+                <div class="field"><label for="facStatus">Status</label>
+                  <select id="facStatus"><option>Active</option><option>Maintenance</option><option>Inactive</option></select></div>
+                <div class="field"><label for="facApproval">Approval policy (FR-04)</label>
+                  <select id="facApproval"><option>Requires approval</option><option>Auto-confirm</option></select></div>
+                <div class="field"><label for="facCond">Condition notes</label><input id="facCond" placeholder="e.g. Good condition" /></div>
+              </div>
+              <p id="facMsg" class="form-message"></p>
+              <div class="form-actions">
+                <button class="btn btn-primary" type="submit" id="facSaveBtn">Save Facility</button>
+                <button class="btn btn-secondary hidden" type="button" id="facCancelBtn">Cancel Edit</button>
+              </div>
+            </form>
+          </div>
+          <div class="card">
+            <div class="table-toolbar"><h3>Facilities</h3><input id="facSearch" class="search" placeholder="Search facilities..." /></div>
+            <div class="table-wrap"><table class="records-table">
+              <thead><tr><th>Name</th><th>Type</th><th>Capacity</th><th>Location</th><th>Status</th><th>Approval</th><th>Condition</th><th class="actions-col">Actions</th></tr></thead>
+              <tbody id="facBody"></tbody>
+            </table></div>
+          </div>
+        </section>
+
+        <!-- ============ RESERVATIONS ============ -->
+        <section id="view-reservations" class="view hidden">
+          <h2 class="view-title">All Reservations</h2>
+          <div class="card" id="resFormCard">
+            <h3>Submit Reservation Request <span class="muted small">(Requester)</span></h3>
+            <form id="resForm" novalidate>
+              <input type="hidden" id="resEditId" />
+              <div class="form-grid">
+                <div class="field"><label for="resFacility">Facility (Active only)</label><select id="resFacility" required></select></div>
+                <div class="field"><label for="resPurpose">Purpose</label><input id="resPurpose" required placeholder="e.g. Basketball practice" /></div>
+                <div class="field"><label for="resPax">Participants (capacity-checked; &gt;100 = dual approval)</label><input id="resPax" type="number" min="1" value="1" required /></div>
+                <div class="field"><label for="resStart">Start time</label><input id="resStart" type="datetime-local" required /></div>
+                <div class="field"><label for="resEnd">End time</label><input id="resEnd" type="datetime-local" required /></div>
+              </div>
+              <p id="resMsg" class="form-message"></p>
+              <div class="form-actions">
+                <button class="btn btn-primary" type="submit" id="resSaveBtn">Submit as Pending</button>
+                <button class="btn btn-secondary hidden" type="button" id="resCancelEditBtn">Cancel Edit</button>
+              </div>
+            </form>
+          </div>
+          <div class="card">
+            <div class="table-toolbar">
+              <h3>Reservations</h3>
+              <div class="toolbar-right">
+                <select id="resStatusFilter"><option value="">All statuses</option><option>Pending</option><option>Partially Approved</option><option>Approved</option><option>Rejected</option><option>Scheduled</option><option>In Use</option><option>Completed</option><option>Cancelled</option><option>No-show</option></select>
+                <input id="resSearch" class="search" placeholder="Search..." />
+              </div>
+            </div>
+            <div class="table-wrap"><table class="records-table">
+              <thead><tr><th>Facility</th><th>Requester</th><th>Purpose</th><th>Start &rarr; End</th><th>Status</th><th class="actions-col">Actions</th></tr></thead>
+              <tbody id="resBody"></tbody>
+            </table></div>
+          </div>
+        </section>
+
+        <!-- ============ APPROVAL QUEUE ============ -->
+        <section id="view-approval" class="view hidden">
+          <h2 class="view-title">Approval Queue</h2>
+          <div class="card">
+            <h3>Pending Reservations</h3>
+            <div class="table-wrap"><table class="records-table">
+              <thead><tr><th>Facility</th><th>Requester</th><th>Purpose</th><th>Start &rarr; End</th><th>Status</th><th class="actions-col">Actions</th></tr></thead>
+              <tbody id="approvalBody"></tbody>
+            </table></div>
+          </div>
+        </section>
+
+        <!-- ============ SERVICE ============ -->
+        <section id="view-service" class="view hidden">
+          <h2 class="view-title">Service Requests</h2>
+          <div class="card" id="srvFormCard">
+            <h3>Report Service Concern <span class="muted small">(Facility Staff)</span></h3>
+            <form id="srvForm">
+              <div class="form-grid">
+                <div class="field"><label for="srvFacility">Facility</label><select id="srvFacility"></select></div>
+                <div class="field"><label for="srvConcern">Concern</label><input id="srvConcern" required placeholder="e.g. Aircon not cooling" /></div>
+              </div>
+              <p id="srvMsg" class="form-message"></p>
+              <button class="btn btn-primary" type="submit">Submit Concern</button>
+            </form>
+          </div>
+          <div class="card">
+            <h3>Service Requests</h3>
+            <div class="table-wrap"><table class="records-table">
+              <thead><tr><th>Facility</th><th>Reported by</th><th>Concern</th><th>Status</th><th>Filed</th><th>Actions</th></tr></thead>
+              <tbody id="srvBody"></tbody>
+            </table></div>
+          </div>
+        </section>
+
+        <!-- ============ USERS ============ -->
+        <section id="view-users" class="view hidden">
+          <h2 class="view-title">User Management</h2>
+          <div class="card">
+            <h3>Users <span class="muted small">(Administrator only)</span></h3>
+            <div class="table-wrap"><table class="records-table">
+              <thead><tr><th>Username</th><th>Full name</th><th>Role</th><th>Active</th><th>Actions</th></tr></thead>
+              <tbody id="usersBody"></tbody>
+            </table></div>
+          </div>
+        </section>
+
+        <!-- ============ AVAILABILITY (FR-01) ============ -->
+        <section id="view-availability" class="view hidden">
+          <h2 class="view-title">Availability Search <span class="muted small">(FR-01)</span></h2>
+          <div class="card">
+            <div class="form-grid">
+              <div class="field"><label for="avStart">Start time</label><input id="avStart" type="datetime-local" /></div>
+              <div class="field"><label for="avEnd">End time</label><input id="avEnd" type="datetime-local" /></div>
+              <div class="field"><label for="avType">Type</label>
+                <select id="avType"><option value="">Any type</option><option>Sports</option><option>Meeting</option><option>Laboratory</option><option>Event</option><option>Study</option><option>General</option></select></div>
+              <div class="field"><label for="avCap">Min capacity</label><input id="avCap" type="number" min="1" placeholder="e.g. 20" /></div>
+            </div>
+            <div class="form-actions"><button class="btn btn-primary" id="avSearchBtn" type="button">Search Availability</button></div>
+          </div>
+          <div class="card">
+            <h3>Results (Active facilities only, conflict-checked)</h3>
+            <div class="table-wrap"><table class="records-table">
+              <thead><tr><th>Facility</th><th>Type</th><th>Capacity</th><th>Policy</th><th>Availability</th><th>Action</th></tr></thead>
+              <tbody id="avBody"></tbody>
+            </table></div>
+          </div>
+        </section>
+
+        <!-- ============ AUTH LIST (FR-07) ============ -->
+        <section id="view-authlist" class="view hidden">
+          <h2 class="view-title">After-Hours Authorization List <span class="muted small">(FR-07 · Security)</span></h2>
+          <div class="card">
+            <div class="table-toolbar"><h3 id="authCount">Authorized entries</h3>
+              <div class="toolbar-right"><input id="authDate" type="date" class="search" /><button id="authFilterBtn" class="btn btn-sm btn-secondary" type="button">Filter</button></div>
+            </div>
+            <p class="muted small">Default after-hours rule: weekends + 18:00–07:00 [TBC]. Large events (&gt;100) always listed once fully approved.</p>
+            <div class="table-wrap"><table class="records-table">
+              <thead><tr><th>Facility</th><th>Requester</th><th>Purpose</th><th>Window</th><th>Flag</th><th>Status</th></tr></thead>
+              <tbody id="authBody"></tbody>
+            </table></div>
+          </div>
+        </section>
+
+        <!-- ============ REPORTS (FR-08) ============ -->
+        <section id="view-reports" class="view hidden">
+          <h2 class="view-title">Utilization Reports <span class="muted small">(FR-08)</span></h2>
+          <div class="card">
+            <div class="form-grid">
+              <div class="field"><label for="repFrom">From</label><input id="repFrom" type="date" /></div>
+              <div class="field"><label for="repTo">To</label><input id="repTo" type="date" /></div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" id="repRunBtn" type="button">Generate</button>
+              <button class="btn btn-secondary" id="repExportBtn" type="button">Export CSV</button>
+            </div>
+          </div>
+          <div class="stat-grid" id="repSummary"></div>
+          <div class="card">
+            <h3>Per-facility utilization</h3>
+            <div class="table-wrap"><table class="records-table">
+              <thead><tr><th>Facility</th><th>Total</th><th>Approved</th><th>Hours</th><th>Cancelled</th><th>No-shows</th><th>Rejected</th></tr></thead>
+              <tbody id="repBody"></tbody>
+            </table></div>
+          </div>
+        </section>
+
+        <!-- ============ NOTIFICATIONS (FR-09) ============ -->
+        <section id="view-notifications" class="view hidden">
+          <h2 class="view-title">Notifications <span class="muted small">(FR-09)</span></h2>
+          <div class="card">
+            <div class="table-toolbar"><h3 id="notifCount">Notifications</h3>
+              <div class="toolbar-right"><button id="notifReadAllBtn" class="btn btn-sm btn-secondary" type="button">Mark all read</button></div>
+            </div>
+            <div class="table-wrap"><table class="records-table">
+              <thead><tr><th>Date</th><th>Message</th><th>Action</th></tr></thead>
+              <tbody id="notifBody"></tbody>
+            </table></div>
+          </div>
+        </section>
+
+        <!-- ============ DOCS & ERD ============ -->
+        <section id="view-docs" class="view hidden">
+          <h2 class="view-title">Docs &amp; ERD <span class="muted small">(Submissions 3–6)</span></h2>
+
+          <div class="card">
+            <h3>ERD (Entity-Relationship Diagram)</h3>
+            <pre class="mermaid">
+erDiagram
+  USERS ||--o{ RESERVATIONS : submits
+  USERS ||--o{ SERVICE_REQUESTS : reports
+  USERS ||--o{ AUDIT_LOGS : performs
+  USERS ||--o{ NOTIFICATIONS : receives
+  FACILITIES ||--o{ RESERVATIONS : has
+  FACILITIES ||--o{ SERVICE_REQUESTS : has
+  RESERVATIONS ||--o{ AUDIT_LOGS : logs
+  RESERVATIONS ||--o{ NOTIFICATIONS : triggers
+  USERS {
+    uuid id PK
+    text username UK
+    text full_name
+    text role
+    text password_hash
+    bool is_active
+    timestamptz created_at
+  }
+  FACILITIES {
+    uuid id PK
+    text name
+    text type
+    int capacity
+    text location
+    text status
+    text approval_type
+    text condition_notes
+    timestamptz created_at
+    timestamptz updated_at
+  }
+  RESERVATIONS {
+    uuid id PK
+    uuid facility_id FK
+    uuid requester_id FK
+    text requester_name
+    text purpose
+    int participant_count
+    bool is_large_event
+    text admin_decision
+    text security_decision
+    timestamptz start_time
+    timestamptz end_time
+    text status
+    text remarks
+    timestamptz created_at
+    timestamptz updated_at
+  }
+  SERVICE_REQUESTS {
+    uuid id PK
+    uuid facility_id FK
+    text reported_by
+    text concern
+    text status
+    timestamptz created_at
+  }
+  AUDIT_LOGS {
+    uuid id PK
+    timestamptz created_at
+    text actor
+    text role
+    text action
+    text details
+    uuid reservation_id FK
+  }
+  NOTIFICATIONS {
+    uuid id PK
+    text username
+    text message
+    uuid reservation_id FK
+    bool is_read
+    timestamptz created_at
+  }
+            </pre>
+          </div>
+
+          <div class="card">
+            <h3>Use Case Diagram</h3>
+            <pre class="mermaid">
+flowchart TB
+  subgraph Sys["Campus Facility Reservation and Monitoring System"]
+    UC01["UC-01 View Availability"]
+    UC02["UC-02 Submit Reservation Request"]
+    UC03["UC-03 Review Request"]
+    UC10["UC-10 Dual Approval >100"]
+    UC04["UC-04 Cancel / No-show"]
+    UC05["UC-05 Utilization Report"]
+    UC06["UC-06 After-Hours Auth List"]
+    UC07["UC-07 Manage Facilities"]
+    UC08["UC-08 Manage Users"]
+    UC09["UC-09 Send Notification"]
+  end
+  REQ["Requester"] --- UC01
+  REQ --- UC02
+  REQ --- UC04
+  STU["Student"] --> REQ
+  FAC["Faculty"] --> REQ
+  ORG["Student Org"] --> REQ
+  ADMIN["Facility Admin"] --- UC03
+  ADMIN --- UC10
+  ADMIN --- UC04
+  ADMIN --- UC05
+  ADMIN --- UC07
+  SEC["Security"] --- UC06
+  SEC --- UC10
+  MGMT["Management"] --- UC05
+  IT["IT Personnel"] --- UC08
+  UC02 -. "include" .-> UC01
+  UC02 -. "include" .-> UC09
+  UC03 -. "include" .-> UC09
+  UC10 -. "extend" .-> UC03
+  UC10 -. "include" .-> UC09
+            </pre>
+          </div>
+
+          <div class="card">
+            <h3>Role-Permission Matrix <span class="muted small">(Submission 4)</span></h3>
+            <div class="table-wrap"><table class="records-table">
+              <thead><tr><th>Function</th><th>Administrator</th><th>Facility Staff</th><th>Requester</th><th>Security</th><th>Management</th></tr></thead>
+              <tbody id="permMatrixBody"></tbody>
+            </table></div>
+          </div>
+
+          <div class="card">
+            <h3>Reservation Workflow <span class="muted small">(Submission 5)</span></h3>
+            <pre class="mermaid">
+flowchart LR
+  A[Submitted] --> B[Pending]
+  B --> C{Admin Review}
+  C -->|Approve| D[Approved]
+  C -->|Reject| E[Rejected]
+  D --> F[Scheduled]
+  F --> G[In Use]
+  G --> H[Completed]
+  B -->|Cancel| I[Cancelled]
+  D -->|Cancel| I
+  F -->|No-show| J[No-show]
+  G -->|No-show| J
+  B -->|Dual >100| K[Partially Approved]
+  K -->|Both Approve| D
+  K -->|Either Reject| E
+            </pre>
+          </div>
+
+          <div class="card">
+            <h3>Business Rules <span class="muted small">(Submission 6)</span></h3>
+            <div class="table-wrap"><table class="records-table">
+              <thead><tr><th>ID</th><th>Rule</th><th>Enforcement</th></tr></thead>
+              <tbody>
+                <tr><td>BR-B4-01</td><td>Only Active facilities may be reserved</td><td><code>submitReservation()</code> blocks non-Active</td></tr>
+                <tr><td>BR-B4-02</td><td>Start must precede end</td><td><code>start &gt;= end</code> rejected</td></tr>
+                <tr><td>BR-B4-03</td><td>Overlapping approved schedules prohibited</td><td><code>isOverlapping()</code> vs Approved/Scheduled/In Use</td></tr>
+                <tr><td>BR-B4-04</td><td>Only Administrator may approve</td><td>role check in <code>changeStatus()</code></td></tr>
+                <tr><td>BR-B4-05</td><td>Rejected cannot become Scheduled</td><td><code>TRANSITIONS.Rejected = []</code></td></tr>
+                <tr><td>BR-B4-06</td><td>Approved reserves the time slot</td><td>Approved/Scheduled/In Use in overlap set</td></tr>
+                <tr><td>BR-B4-07</td><td>Completed cannot be edited</td><td>edit + status-change blocked</td></tr>
+                <tr><td>BR-B4-08</td><td>Maintenance cannot be reserved</td><td>same gate as BR-01</td></tr>
+                <tr><td>BR-B4-09</td><td>Requesters modify only own Pending</td><td>owner + Pending check</td></tr>
+                <tr><td>BR-B4-10</td><td>Approval/status changes logged</td><td><code>logAudit()</code> on every critical action</td></tr>
+                <tr><td>CR-01</td><td>&gt;100 pax requires dual approval (Admin + Security)</td><td><code>decideApproval()</code> + Partially Approved state</td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </section>
+
+        <!-- ============ TEST CHECKLIST ============ -->
+        <section id="view-tests" class="view hidden">
+          <h2 class="view-title">Test Checklist <span class="muted small">(Submission 8)</span></h2>
+          <div class="card">
+            <div class="table-toolbar">
+              <h3>Functional Test Cases TC-B4-01..10 + CR-01</h3>
+              <div class="toolbar-right">
+                <button id="runTestsBtn" class="btn btn-primary" type="button">Run Automated Rule Checks</button>
+                <button id="exportTestsBtn" class="btn btn-secondary" type="button">Export CSV</button>
+              </div>
+            </div>
+            <div class="table-wrap"><table class="records-table">
+              <thead><tr><th>ID</th><th>Scenario</th><th>Expected</th><th>How to Test</th><th>Result</th></tr></thead>
+              <tbody id="testBody"></tbody>
+            </table></div>
+            <p id="testSummary" class="form-message" role="status"></p>
+          </div>
+        </section>
+
+        <!-- ============ AUDIT ============ -->
+        <section id="view-audit" class="view hidden">
+          <h2 class="view-title">Audit Logs</h2>
+          <div class="card">
+            <div class="table-toolbar"><h3>Audit Logs <span class="muted small">(BR-B4-10)</span></h3>
+              <div class="toolbar-right"><input id="auditSearch" class="search" placeholder="Search logs..." /><button id="exportAuditBtn" class="btn btn-sm btn-secondary">Export CSV</button></div>
+            </div>
+            <div class="table-wrap"><table class="records-table">
+              <thead><tr><th>Timestamp</th><th>Actor</th><th>Role</th><th>Action</th><th>Details</th></tr></thead>
+              <tbody id="auditBody"></tbody>
+            </table></div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
