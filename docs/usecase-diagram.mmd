@@ -1,0 +1,41 @@
+%% Mermaid Use Case Diagram - Facility Reservation & Approval System
+%% Render on GitHub (Docs) or https://mermaid.live - export to PNG/SVG/PDF
+flowchart TB
+  subgraph SYS["Facility Reservation & Approval System"]
+    direction TB
+    UC01["UC-01 View Availability"]
+    UC02["UC-02 Submit Reservation Request"]
+    UC03["UC-03 Review Request"]
+    UC04["UC-04 Cancel / No-show / Complete"]
+    UC05["UC-05 Generate Utilization Report"]
+    UC06["UC-06 View After-Hours Auth List"]
+    UC07["UC-07 Manage Facilities"]
+    UC08["UC-08 Manage Users"]
+    UC09["UC-09 Send Notification"]
+    UC10["UC-10 Dual Approval (>100 pax)"]
+  end
+
+  REQ["Requester - Student/Faculty/Org"] --- UC01
+  REQ --- UC02
+  REQ --- UC04
+
+  ADMIN["Administrator - Facility Admin/IT"] --- UC03
+  ADMIN --- UC04
+  ADMIN --- UC05
+  ADMIN --- UC07
+  ADMIN --- UC08
+  ADMIN --- UC10
+
+  STAFF["Facility Staff"] --- UC04
+  STAFF --- UC06
+
+  SEC["Security"] --- UC06
+  SEC --- UC10
+
+  MGT["Management"] --- UC05
+
+  UC02 -. "include" .-> UC01
+  UC02 -. "include" .-> UC09
+  UC03 -. "include" .-> UC09
+  UC10 -. "extend" .-> UC03
+  UC10 -. "include" .-> UC09

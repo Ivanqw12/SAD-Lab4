@@ -1,0 +1,47 @@
+@startuml
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+:Requester
+(Student / Faculty / Org): as REQUIRE
+:Administrator
+(Facility Admin / IT): as ADMIN
+:Facility Staff: as STAFF
+:Security: as SEC
+:Management: as MGT
+
+rectangle "Facility Reservation & Approval System" as SYS {
+  usecase "UC-01 View Availability" as UC01
+  usecase "UC-02 Submit Reservation Request" as UC02
+  usecase "UC-03 Review Request" as UC03
+  usecase "UC-04 Cancel / No-show / Complete" as UC04
+  usecase "UC-05 Generate Utilization Report" as UC05
+  usecase "UC-06 View After-Hours Auth List" as UC06
+  usecase "UC-07 Manage Facilities" as UC07
+  usecase "UC-08 Manage Users" as UC08
+  usecase "UC-09 Send Notification" as UC09
+  usecase "UC-10 Dual Approval (>100 pax)" as UC10
+}
+
+REQUIRE --> UC01
+REQUIRE --> UC02
+REQUIRE --> UC04
+ADMIN --> UC03
+ADMIN --> UC04
+ADMIN --> UC05
+ADMIN --> UC07
+ADMIN --> UC08
+ADMIN --> UC10
+STAFF --> UC04
+STAFF --> UC06
+SEC --> UC06
+SEC --> UC10
+MGT --> UC05
+
+UC02 ..> UC01 : <<include>>
+UC02 ..> UC09 : <<include>>
+UC03 ..> UC09 : <<include>>
+UC10 ..> UC03 : <<extend>>
+UC10 ..> UC09 : <<include>>
+@enduml
