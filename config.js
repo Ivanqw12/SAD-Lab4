@@ -27,6 +27,12 @@
    reload. Nothing else in the app needs to change.
    ============================================================ */
 
+/* ★ MASTER TOGGLE ★
+   true  = Supabase Mode (data syncs to your cloud project)
+   false = Demo Mode (data stays in this browser's localStorage)
+   Your credentials below stay saved either way — just flip this. */
+const USE_SUPABASE = false;
+
 /* ★ PASTE YOUR PROJECT URL HERE ★
    Accepts https://<ref>.supabase.co  or  https://<ref>.supabase.co/rest/v1 */
 const SUPABASE_URL = "https://xcxwjpyqvjpnoiwlnqlx.supabase.co/rest/v1/";
@@ -44,6 +50,7 @@ function normalizeSupabaseUrl(raw) {
 const SUPABASE_BASE_URL = normalizeSupabaseUrl(SUPABASE_URL);
 
 function isSupabaseConfigured() {
+  if (!USE_SUPABASE) return false;
   if (typeof SUPABASE_BASE_URL !== "string" || typeof SUPABASE_ANON_KEY !== "string") return false;
   if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(SUPABASE_BASE_URL)) return false;
   if (SUPABASE_BASE_URL.indexOf("REPLACE_ME") !== -1) return false;
